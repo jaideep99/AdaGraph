@@ -10,8 +10,13 @@ os.chdir('C:\\Users\\jaide\\OneDrive\\Documents\\VSCODE\\openCV\\roi')
 
 pytesseract.pytesseract.tesseract_cmd = ("C:\\Program Files\\Tesseract-OCR\\tesseract")
 
+i=0
 
 def get_digits(imstr):
+
+    if(imstr=='my_model.h5' or 'rois' in imstr):
+        return
+
     img = cv2.imread(imstr,0)
     c,r = img.shape
     print(r,c)
@@ -32,7 +37,7 @@ def get_digits(imstr):
 
 
     digits = []
-    i=0
+
     for contour in contours:
         x,y,w,h = cv2.boundingRect(contour)
         
@@ -47,10 +52,9 @@ def get_digits(imstr):
 
             cv2.rectangle(out,(x,y),(x+w,y+h),(0,255,0),1)
             
-            test = pytesseract.image_to_string(roi, config='-l eng --oem 1 --psm 10')
-            print(test)
             print(roi.shape)
             
+            global i
             cv2.imshow('rois'+str(i),roi)
             cv2.imwrite(imstr,roi)
             i+=1
