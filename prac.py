@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from utils import get_circlecontours,get_maskedcontours
 import pytesseract
 import os
+from labeler import get_digits
 
 
 
@@ -15,19 +16,16 @@ gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 circles = get_circlecontours(gray)
 rois = get_maskedcontours(gray,circles)
 
-pytesseract.pytesseract.tesseract_cmd = ("C:\\Program Files\\Tesseract-OCR\\tesseract")
 
-dir = 'C:\\Users\\jaide\\OneDrive\\Documents\\VSCODE\\openCV\\roi'
-os.chdir(dir)
 
-i=0
+labels = []
 for roi in rois:
-  image = 'roi'+str(i)+'.png'
-  cv2.imwrite(image,roi)
-  test = pytesseract.image_to_string(roi, config='-l eng --oem 1 --psm 11')
-  print(test)
-  i+=1
+  x = get_digits(roi)
+  labels.append(x)
+  
+vertices = dict(zip(range(1,len(rois)+1),labels))
 
+print(vertices)
 
 
 cv2.waitKey(0)

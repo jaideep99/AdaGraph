@@ -51,9 +51,7 @@ def get_maskedcontours(gray,contours):
         cv2.rectangle(out,(x,y),(x+w,y+h),(0,255,0),2)
         i+=1
 
-    cv2.imshow('out',out)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+        
     return rois
 
 
