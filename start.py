@@ -19,18 +19,21 @@ if(img.shape[0]>345 or img.shape[1]>345):
   img = cv2.resize(img,(345,345),cv2.INTER_AREA)
 gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
+print("dividing edges and nodes...\n")
 nodes,edges = divide(img)
 
-cv2.imshow('image',img)
-cv2.imshow('nodes',nodes)
-cv2.imshow('edges',edges)
-cv2.waitKey(0)
 
+# cv2.imshow('image',img)
+# cv2.imshow('nodes',nodes)
+# cv2.imshow('edges',edges)
+# cv2.waitKey(0)
+
+print("retrieving nodes...\n")
 circles = get_circlecontours(nodes)
 
 rois,centers = get_maskedcontours(gray,circles)
 
-
+print("labelling...\n")
 
 labels = []
 for roi in rois:
@@ -39,13 +42,15 @@ for roi in rois:
   
 vertices = dict(zip(range(1,len(rois)+1),labels))
 
-print(vertices)
+print("vertices : ",vertices)
 
 raw_adj = join(edges,centers,directed)
 adj_matrix = []
 for x in raw_adj:
   adj_matrix.append((int(vertices[x]),[int(vertices[y]) for y in raw_adj[x]]))
 
+print()
+print("Printing Adjacency List....\n")
 adj_matrix = dict(adj_matrix)
 print(adj_matrix)
 
