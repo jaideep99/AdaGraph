@@ -5,43 +5,39 @@ from imutils import contours as icnts
 from utils import resize
 from classifier import predict_digitnn
 
-def get_digits(img):
+def relu(x):
+    if(x>0):
+        return x
+    return 0
+        
+def retrieve_digits(img):
+    kern = np.ones((2,2),np.uint8)
+    _,p = cv2.threshold(img,130,255,cv2.THRESH_BINARY_INV)
 
-    c,r = img.shape
-
-    kernel = np.ones((3,3),np.uint8)
-
-    canny = cv2.Canny(img,125,255)
-    _,thresh =cv2.threshold(img,125,255,cv2.THRESH_BINARY_INV)
-    thresh = cv2.dilate(thresh,kernel,iterations=1)
-    thresh = cv2.erode(thresh,kernel,iterations=1)
-
-    contours,hier = cv2.findContours(thresh,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-    contours = icnts.sort_contours(contours,method="left-to-right")[0]
+    cnts,hiers = cv2.findContours(p,cv2.RETR_CCOMP,cv2.CHAIN_APPROX_NONE)
     
-    out = thresh.copy()
-    temp = out.copy()
-    out = cv2.cvtColor(out,cv2.COLOR_GRAY2BGR)
-
-
+    show = p.copy()
     digits = []
+    order = []
+    for i in range(len(cnts)):
+        if hiers[0][i][0] != -1:
 
-    for contour in contours:
-        x,y,w,h = cv2.boundingRect(contour)
-        
-        if(((x,y)!=(0,0)) and ((x,y+h)!=(0,c)) and ((x+w,y)!=(r,0)) and ((x+w,y+h)!=(r,c))):
-            
-            x,y,w,h = x-2,y-2,w+4,h+4
+            x,y,w,h = cv2.boundingRect(cnts[i])
 
-            roi = temp[y:y+h,x:x+w]
+            if(w>10 or h>10):
 
-            roi = resize(roi,w,h)
+                xs,ys = x,y
+                x,y = relu(x-2),relu(y-2)
+                w,h = relu(w+2*(xs-x)),relu(h+2*(ys-y))
+                roi = show[y:y+h,x:x+w]
 
-            cv2.rectangle(out,(x,y),(x+w,y+h),(0,255,0),1)
-            
-            digits.append(str(predict_digitnn(roi)))
+                roi = resize(roi,w,h)
+                
+                digits.append(str(predict_digitnn(roi)))
+                order.append(x)
 
-    
-    number = ''.join(digits)
-    return number
-        
+
+    digits = [x for _,x in sorted(zip(order,digits))]
+    digits = ''.join(digits)
+
+    return digits

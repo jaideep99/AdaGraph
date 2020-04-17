@@ -4,6 +4,9 @@ import numpy as np
 
 def predict_digitnn(img):
 
+    # cv2.imshow('imgs',img)
+    # cv2.waitKey(0)
+
     img = np.array([img],dtype=np.float32)
     img = img/255
 
